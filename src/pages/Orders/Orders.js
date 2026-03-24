@@ -4,12 +4,14 @@ import { ordersApi } from '../../api';
 import './Orders.css';
 
 const INR = n =>
-  '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
-const dateStr = s =>
-  new Date(s).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+const dateStr = s => {
+  const d = new Date(s);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+};
 
-// Status values from orders table — status enum: pending,processing,shipped,delivered,cancelled
 const STATUS_CLASSES = {
   pending:    'status-pending',
   processing: 'status-processing',
@@ -21,11 +23,9 @@ const STATUS_CLASSES = {
 export default function Orders() {
   const { navigate } = useApp();
 
-  const [orders,        setOrders]        = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [expandedId,    setExpandedId]    = useState(null);
-  const [orderDetails,  setOrderDetails]  = useState({}); // { [id]: order_with_items }
-  const [detailLoading, setDetailLoading] = useState(null);
+  const [orders,       setOrders]       = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [expandedId,   setExpandedId]   = useState(null);
 
   useEffect(() => {
     ordersApi.getAll()
@@ -33,25 +33,9 @@ export default function Orders() {
       .catch(() => setLoading(false));
   }, []);
 
-  const toggleExpand = async (orderId) => {
-    if (expandedId === orderId) { setExpandedId(null); return; }
-    setExpandedId(orderId);
-
-    if (!orderDetails[orderId]) {
-      setDetailLoading(orderId);
-      try {
-        const r = await ordersApi.getById(orderId);
-        if (r.success) {
-          setOrderDetails(prev => ({ ...prev, [orderId]: r.data }));
-        }
-      } catch { /* ignore */ }
-      setDetailLoading(null);
-    }
+  const toggleExpand = (orderId) => {
+    setExpandedId(prev => prev === orderId ? null : orderId);
   };
-
-  const getStatus = (order) =>
-    // orders.php returns order_status (from checkout.php insert) or status
-    order.order_status || order.status || 'pending';
 
   if (loading) return (
     <div className="orders-page">
@@ -94,117 +78,86 @@ export default function Orders() {
           </div>
         ) : (
           orders.map(order => {
-            const status   = getStatus(order);
-            const expanded = expandedId === order.id;
-            const detail   = orderDetails[order.id];
+            const status   = order.status || 'pending';
+            const expanded = expandedId === order._id;
+            const itemCount = order.items?.length || 0;
 
             return (
-              <div key={order.id} className="order-card">
-                {/* Header row */}
+              <div key={order._id} className="order-card">
+                {/* Header */}
                 <div className="order-card-header">
                   <div className="order-meta">
-                    {/* order_number from checkout.php generateOrderNumber() */}
                     <p className="order-number">{order.order_number}</p>
-                    <p className="order-date">{dateStr(order.created_at)}</p>
+                    <p className="order-date">{dateStr(order.createdAt)}</p>
                   </div>
-
                   <span className={`order-status ${STATUS_CLASSES[status] || 'status-pending'}`}>
                     {status.toUpperCase()}
                   </span>
                 </div>
 
-                {/* Summary row */}
+                {/* Summary */}
                 <div className="order-summary-row">
                   <div className="order-summary-info">
-                    {/* item_count from COUNT(oi.id) in orders.php */}
                     <span className="order-items-count">
-                      {order.item_count} item{order.item_count !== 1 ? 's' : ''}
+                      {itemCount} item{itemCount !== 1 ? 's' : ''}
                     </span>
                     <span className="order-meta-sep">·</span>
-                    {/* payment_method from orders table */}
                     <span className="order-payment">
                       {(order.payment_method || 'COD').toUpperCase()}
                     </span>
-                    {order.shipping_city && (
-                      <>
-                        <span className="order-meta-sep">·</span>
-                        <span className="order-city">{order.shipping_city}</span>
-                      </>
-                    )}
                   </div>
-
-                  {/* total_amount from orders table */}
                   <p className="order-total">{INR(order.total_amount)}</p>
                 </div>
 
                 {/* Expand toggle */}
                 <button
                   className="order-expand-btn"
-                  onClick={() => toggleExpand(order.id)}
+                  onClick={() => toggleExpand(order._id)}
                 >
                   {expanded ? 'Hide Details ↑' : 'View Details ↓'}
                 </button>
 
-                {/* Expanded: items from order_items table */}
+                {/* Expanded details — data is already in the order object */}
                 {expanded && (
                   <div className="order-detail-panel">
-                    {detailLoading === order.id ? (
-                      <p className="detail-loading">Loading…</p>
-                    ) : detail ? (
-                      <>
-                        <div className="order-items-list">
-                          {detail.items?.map(item => (
-                            <div key={item.id} className="order-item-row">
-                              <img
-                                className="order-item-img"
-                                src={item.product_image || ''}
-                                alt={item.product_name}
-                                onError={e => { e.target.style.background = 'var(--sand)'; e.target.src = ''; }}
-                              />
-                              <div className="order-item-info">
-                                <p className="order-item-name">{item.product_name}</p>
-                                <p className="order-item-qty">Qty: {item.quantity}</p>
-                              </div>
-                              <p className="order-item-price">{INR(item.subtotal)}</p>
-                            </div>
-                          ))}
+                    <div className="order-items-list">
+                      {order.items?.map((item, i) => (
+                        <div key={i} className="order-item-row">
+                          <img
+                            className="order-item-img"
+                            src={item.product_image || ''}
+                            alt={item.product_name}
+                            onError={e => { e.target.style.background = 'var(--sand)'; e.target.src = ''; }}
+                          />
+                          <div className="order-item-info">
+                            <p className="order-item-name">{item.product_name}</p>
+                            <p className="order-item-qty">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="order-item-price">{INR(item.subtotal)}</p>
                         </div>
+                      ))}
+                    </div>
 
-                        <div className="order-totals-block">
-                          <div className="order-totals-row">
-                            <span>Subtotal</span>
-                            <span>{INR(detail.subtotal)}</span>
-                          </div>
-                          <div className="order-totals-row">
-                            <span>Shipping</span>
-                            <span>{INR(detail.shipping_charge)}</span>
-                          </div>
-                          {detail.tax_amount > 0 && (
-                            <div className="order-totals-row">
-                              <span>Tax</span>
-                              <span>{INR(detail.tax_amount)}</span>
-                            </div>
-                          )}
-                          <div className="order-totals-row order-grand-total">
-                            <span>Total</span>
-                            <span>{INR(detail.total_amount)}</span>
-                          </div>
-                        </div>
+                    <div className="order-totals-block">
+                      <div className="order-totals-row">
+                        <span>Subtotal</span>
+                        <span>{INR(order.subtotal)}</span>
+                      </div>
+                      <div className="order-totals-row">
+                        <span>Shipping</span>
+                        <span>{INR(order.shipping_charge)}</span>
+                      </div>
+                      <div className="order-totals-row order-grand-total">
+                        <span>Total</span>
+                        <span>{INR(order.total_amount)}</span>
+                      </div>
+                    </div>
 
-                        <div className="order-shipping-addr">
-                          <p className="order-shipping-label">Delivery Address</p>
-                          <p>
-                            {detail.customer_name} · {detail.customer_phone}
-                          </p>
-                          <p>
-                            {detail.shipping_address}, {detail.shipping_city},&nbsp;
-                            {detail.shipping_state} – {detail.shipping_pincode}
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="detail-loading">Could not load details.</p>
-                    )}
+                    <div className="order-shipping-addr">
+                      <p className="order-shipping-label">Delivery Address</p>
+                      <p>{order.customer_name} · {order.customer_phone}</p>
+                      <p>{order.shipping_address}, {order.shipping_city}, {order.shipping_state} – {order.shipping_pincode}</p>
+                    </div>
                   </div>
                 )}
               </div>

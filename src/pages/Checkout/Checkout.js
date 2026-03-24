@@ -65,17 +65,36 @@ export default function Checkout() {
 
     setLoading(true);
     try {
-      const res = await checkoutApi.placeOrder(form);
+      const items = cartItems.map(item => {
+        const product = item.product_id || {};
+        const price = product.price || 0;
+        const disc  = product.discount_percentage || 0;
+        const finalPrice = disc > 0 ? price - (price * disc / 100) : price;
+        return {
+          product_id:   product._id,
+          product_name: product.name,
+          product_image: product.image_url,
+          quantity:     item.quantity,
+          unit_price:   finalPrice,
+          subtotal:     finalPrice * item.quantity,
+        };
+      });
+      const payload = {
+        ...form,
+        items,
+        subtotal:        cartMeta.subtotal,
+        shipping_charge: cartMeta.shipping,
+        total_amount:    cartMeta.total,
+      };
+      const res = await checkoutApi.placeOrder(payload);
       if (res.success) {
-        setPlaced(res.data);   // { order_id, order_number, total_amount }
+        setPlaced(res.data);
         await refreshCart();
       } else {
-        // checkout.php may return field-level errors
-        if (res.errors) setErrors(res.errors);
         toast(res.message || 'Checkout failed', 'error');
       }
     } catch {
-      toast('Server unreachable — is PHP running?', 'error');
+      toast('Server unreachable. Please try again.', 'error');
     }
     setLoading(false);
   };
@@ -188,21 +207,27 @@ export default function Checkout() {
             <h2 className="co-section-title">Order Summary</h2>
 
             <div className="summary-items">
-              {cartItems.map(item => (
-                <div key={item.id} className="summary-item">
-                  <img
-                    className="summary-item-img"
-                    src={item.image_url || ''}
-                    alt={item.product_name}
-                    onError={e => { e.target.style.background = 'var(--sand)'; e.target.src = ''; }}
-                  />
-                  <div className="summary-item-info">
-                    <p className="summary-item-name">{item.product_name}</p>
-                    <p className="summary-item-qty">Qty: {item.quantity}</p>
+              {cartItems.map(item => {
+                const product = item.product_id || {};
+                const price = product.price || 0;
+                const disc  = product.discount_percentage || 0;
+                const finalPrice = disc > 0 ? price - (price * disc / 100) : price;
+                return (
+                  <div key={item._id} className="summary-item">
+                    <img
+                      className="summary-item-img"
+                      src={product.image_url || ''}
+                      alt={product.name}
+                      onError={e => { e.target.style.background = 'var(--sand)'; e.target.src = ''; }}
+                    />
+                    <div className="summary-item-info">
+                      <p className="summary-item-name">{product.name}</p>
+                      <p className="summary-item-qty">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="summary-item-price">{INR(finalPrice * item.quantity)}</p>
                   </div>
-                  <p className="summary-item-price">{INR(item.subtotal)}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="summary-totals">

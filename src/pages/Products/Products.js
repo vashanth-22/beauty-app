@@ -211,7 +211,7 @@ export default function Products() {
           {/* Results info */}
           {!loading && (
             <p className="results-info">
-              {pagination.total_items || 0} products found
+              {products.length || 0} products found
               {filters.search && ` for "${filters.search}"`}
             </p>
           )}
@@ -223,7 +223,7 @@ export default function Products() {
             </div>
           ) : products.length > 0 ? (
             <div className="grid-4">
-              {products.map(p => <ProductCard key={p.id} product={p} />)}
+              {products.map(p => <ProductCard key={p._id} product={p} />)}
             </div>
           ) : (
             <div className="empty-state">

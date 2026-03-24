@@ -12,6 +12,7 @@ export default function ProductDetail() {
   const { selectedProduct, navigate, addToCart } = useApp();
 
   const [product,  setProduct]  = useState(null);
+  const [related,  setRelated]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [qty,      setQty]      = useState(1);
   const [imgIndex, setImgIndex] = useState(0);
@@ -23,7 +24,16 @@ export default function ProductDetail() {
     setImgIndex(0);
 
     productsApi.getById(selectedProduct._id).then(r => {
-      setProduct(r.data || null);
+      const p = r.data || null;
+      setProduct(p);
+      if (p?.category_slug) {
+        productsApi.getAll({ category: p.category_slug })
+          .then(rel => {
+            const others = (rel.data || []).filter(rp => rp._id !== p._id).slice(0, 4);
+            setRelated(others);
+          })
+          .catch(() => {});
+      }
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [selectedProduct]);
@@ -214,16 +224,16 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* ── RELATED PRODUCTS (from products.php related_products) ── */}
-      {product.related_products?.length > 0 && (
+      {/* ── RELATED PRODUCTS ── */}
+      {related.length > 0 && (
         <section className="section">
           <div className="section-header">
             <p className="eyebrow">Complete Your Ritual</p>
             <h2 className="section-title">You May Also <em>Love</em></h2>
           </div>
           <div className="grid-4">
-            {product.related_products.map(rp => (
-              <ProductCard key={rp.id} product={rp} />
+            {related.map(rp => (
+              <ProductCard key={rp._id} product={rp} />
             ))}
           </div>
         </section>

@@ -3,7 +3,13 @@ import { useApp } from '../../context/AppContext';
 import './Footer.css';
 
 export default function Footer() {
-  const { navigate } = useApp();
+  const { navigate, setFilters } = useApp();
+
+  const goCategory = (slug) => {
+    setFilters({ sort: 'newest', category: slug });
+    navigate('products');
+  };
+
   return (
     <footer className="footer">
       <div className="footer-grid">
@@ -15,29 +21,36 @@ export default function Footer() {
           </p>
         </div>
 
-        {[
-          {
-            title: 'Shop',
-            links: ['Skincare', 'Haircare', 'Makeup', 'Fragrance', 'Wellness'],
-          },
-          {
-            title: 'Help',
-            links: ['Track Order', 'Returns & Exchange', 'FAQ', 'Contact Us', 'Shipping Info'],
-          },
-          {
-            title: 'Connect',
-            links: ['Instagram', 'Pinterest', 'YouTube', 'Newsletter'],
-          },
-        ].map(col => (
-          <div key={col.title} className="footer-col">
-            <p className="footer-col-title">{col.title}</p>
-            {col.links.map(l => (
-              <span key={l} className="footer-link" onClick={() => navigate('products')}>
-                {l}
-              </span>
-            ))}
-          </div>
-        ))}
+        <div className="footer-col">
+          <p className="footer-col-title">Shop</p>
+          {[
+            { label: 'Skincare',  slug: 'skincare'  },
+            { label: 'Haircare',  slug: 'haircare'  },
+            { label: 'Makeup',    slug: 'makeup'    },
+            { label: 'Fragrance', slug: 'fragrance' },
+            { label: 'Wellness',  slug: 'wellness'  },
+          ].map(c => (
+            <span key={c.slug} className="footer-link" onClick={() => goCategory(c.slug)}>
+              {c.label}
+            </span>
+          ))}
+        </div>
+
+        <div className="footer-col">
+          <p className="footer-col-title">Help</p>
+          <span className="footer-link" onClick={() => navigate('orders')}>Track Order</span>
+          <span className="footer-link" onClick={() => navigate('returns')}>Returns & Exchange</span>
+          <span className="footer-link" onClick={() => navigate('contact')}>Contact Us</span>
+          <span className="footer-link" onClick={() => navigate('contact')}>Shipping Info</span>
+        </div>
+
+        <div className="footer-col">
+          <p className="footer-col-title">Connect</p>
+          <a className="footer-link" href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+          <a className="footer-link" href="https://pinterest.com" target="_blank" rel="noreferrer">Pinterest</a>
+          <a className="footer-link" href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+          <span className="footer-link" onClick={() => navigate('contact')}>Newsletter</span>
+        </div>
       </div>
 
       <div className="footer-bottom">

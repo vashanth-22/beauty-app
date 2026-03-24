@@ -14,6 +14,8 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Checkout      from './pages/Checkout/Checkout';
 import Orders        from './pages/Orders/Orders';
 import Auth          from './pages/Auth/Auth';
+import Contact       from './pages/Contact/Contact';
+import Returns       from './pages/Returns/Returns';
 
 // Promo strip (uses config: FREE_SHIPPING_THRESHOLD = 1000, SHIPPING_CHARGE = 50)
 function PromoStrip() {
@@ -36,6 +38,8 @@ function Router() {
     checkout:<Checkout />,
     orders:  <Orders />,
     auth:    <Auth />,
+    contact: <Contact />,
+    returns: <Returns />,
   };
 
   return (

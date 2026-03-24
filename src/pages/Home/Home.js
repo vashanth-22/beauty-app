@@ -139,7 +139,7 @@ export default function Home() {
         ) : (
           <div className="grid-5">
             {categories.map(cat => (
-              <div key={cat.id} className="category-card" onClick={() => goCategory(cat.slug)}>
+              <div key={cat._id} className="category-card" onClick={() => goCategory(cat.slug)}>
                 <span className="category-icon">{cat.icon || '✨'}</span>
                 <p className="category-name">{cat.name}</p>
                 <p className="category-count">
@@ -164,7 +164,7 @@ export default function Home() {
         ) : featured.length > 0 ? (
           <>
             <div className="grid-4">
-              {featured.map(p => <ProductCard key={p.id} product={p} />)}
+              {featured.map(p => <ProductCard key={p._id} product={p} />)}
             </div>
             <div className="section-cta">
               <button className="btn btn-border" onClick={() => navigate('products')}>
@@ -187,7 +187,7 @@ export default function Home() {
           <div className="grid-4">
             {loading
               ? [1,2,3,4].map(i => <SkeletonCard key={i} />)
-              : trending.map(p => <ProductCard key={p.id} product={p} />)
+              : trending.map(p => <ProductCard key={p._id} product={p} />)
             }
           </div>
         </section>
@@ -201,7 +201,7 @@ export default function Home() {
             <h2 className="section-title">New <em>Launches</em></h2>
           </div>
           <div className="grid-4">
-            {newLaunch.map(p => <ProductCard key={p.id} product={p} />)}
+            {newLaunch.map(p => <ProductCard key={p._id} product={p} />)}
           </div>
           <div className="section-cta">
             <button
