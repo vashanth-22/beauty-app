@@ -118,6 +118,9 @@ export function AppProvider({ children }) {
 
   // ── init ──────────────────────────────────────────────────────────────
   useEffect(() => {
+    // Warm up Render backend on app load (free tier cold start)
+    fetch('https://beauty-backend-1-59ws.onrender.com/').catch(() => {});
+
     const token = localStorage.getItem('token');
     if (token) {
       authApi.getUser()

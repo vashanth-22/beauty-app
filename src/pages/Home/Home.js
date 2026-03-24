@@ -27,7 +27,8 @@ export default function Home() {
   const [newLaunch, setNewLaunch] = useState([]);
   const [loading,   setLoading]   = useState(true);
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
     Promise.all([
       heroApi.getSlides(),
       categoriesApi.getAll(),
@@ -35,14 +36,34 @@ export default function Home() {
       productsApi.getAll({ trending: 1, limit: 4 }),
       productsApi.getAll({ new_launch: 1, limit: 4 }),
     ]).then(([heroRes, catRes, featRes, trendRes, newRes]) => {
-      setSlides(heroRes.data   || []);
+      setSlides(heroRes.data    || []);
       setCategories(catRes.data || []);
       setFeatured(featRes.data  || []);
       setTrending(trendRes.data || []);
       setNewLaunch(newRes.data  || []);
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+    }).catch(() => {
+      // Retry once after 4 seconds if server was sleeping
+      setTimeout(() => {
+        Promise.all([
+          heroApi.getSlides(),
+          categoriesApi.getAll(),
+          productsApi.getAll({ featured: 1, limit: 4 }),
+          productsApi.getAll({ trending: 1, limit: 4 }),
+          productsApi.getAll({ new_launch: 1, limit: 4 }),
+        ]).then(([heroRes, catRes, featRes, trendRes, newRes]) => {
+          setSlides(heroRes.data    || []);
+          setCategories(catRes.data || []);
+          setFeatured(featRes.data  || []);
+          setTrending(trendRes.data || []);
+          setNewLaunch(newRes.data  || []);
+          setLoading(false);
+        }).catch(() => setLoading(false));
+      }, 4000);
+    });
+  };
+
+  useEffect(() => { loadData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-advance hero slides
   useEffect(() => {
