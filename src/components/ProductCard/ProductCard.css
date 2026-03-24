@@ -1,0 +1,73 @@
+.product-card {
+  background: var(--white);
+  border: 1px solid var(--sand);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px var(--sh-md);
+}
+
+/* Image */
+.product-card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--pearl);
+}
+.product-card-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .55s ease;
+}
+.product-card:hover .product-card-img { transform: scale(1.06); }
+
+/* Badges */
+.product-badges {
+  position: absolute;
+  top: 10px; left: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  z-index: 1;
+}
+.badge {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 9px;
+}
+.badge-sale  { background: var(--rose); color: #fff; }
+.badge-new   { background: var(--ink);  color: #fff; }
+.badge-trend { background: var(--gold); color: var(--ink); }
+
+/* Info */
+.product-card-info { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+.product-card-cat {
+  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 6px; font-weight: 500;
+}
+.product-card-name {
+  font-size: 16px; font-weight: 400; color: var(--ink);
+  line-height: 1.3; margin-bottom: 10px;
+}
+.product-card-price {
+  display: flex; align-items: baseline; gap: 8px;
+  flex-wrap: wrap; margin-top: auto; margin-bottom: 4px;
+}
+.price-final   { font-size: 18px; font-weight: 500; color: var(--ink); }
+.price-original{ font-size: 13px; color: var(--warm); text-decoration: line-through; }
+.price-save    { font-size: 11px; color: var(--rose); font-weight: 500; letter-spacing: .3px; }
+
+/* Add to bag */
+.product-card-atc {
+  width: 100%; margin-top: 14px; padding: 11px;
+  background: var(--ink); color: #fff; border: none;
+  font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  transition: var(--transition);
+  opacity: 0;
+}
+.product-card:hover .product-card-atc { opacity: 1; }
+.product-card-atc:hover { background: var(--bark); }

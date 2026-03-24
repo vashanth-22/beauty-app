@@ -1,0 +1,161 @@
+.orders-page { min-height: 80vh; }
+
+.orders-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 48px 80px;
+}
+.orders-title {
+  font-size: 44px;
+  font-weight: 300;
+  margin-bottom: 44px;
+}
+.orders-title em { font-style: italic; color: var(--rose); }
+
+/* ── ORDER CARD ──────────────────────────────────────── */
+.order-card {
+  background: var(--white);
+  border: 1px solid var(--sand);
+  margin-bottom: 16px;
+  transition: box-shadow .25s;
+  overflow: hidden;
+}
+.order-card:hover { box-shadow: 0 8px 32px var(--sh); }
+
+.order-card-skeleton {
+  background: var(--white);
+  border: 1px solid var(--sand);
+  padding: 24px 28px;
+  margin-bottom: 12px;
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 28px 0;
+}
+
+.order-number {
+  font-family: var(--ff-display);
+  font-size: 19px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+.order-date { font-size: 12px; color: var(--warm); letter-spacing: .4px; }
+
+/* Status badges */
+.order-status {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  flex-shrink: 0;
+}
+.status-pending    { background: #FEF3C7; color: #92400E; }
+.status-processing { background: #DBEAFE; color: #1E40AF; }
+.status-shipped    { background: #E0E7FF; color: #3730A3; }
+.status-delivered  { background: #D1FAE5; color: #065F46; }
+.status-cancelled  { background: #FEE2E2; color: #991B1B; }
+
+.order-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 28px 0;
+  font-size: 13px;
+  color: var(--warm);
+}
+.order-summary-info { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.order-meta-sep { color: var(--sand); }
+.order-total {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.order-expand-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 28px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--sand);
+  margin-top: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--rose);
+  text-transform: uppercase;
+  transition: background .2s;
+}
+.order-expand-btn:hover { background: var(--pearl); }
+
+/* ── DETAIL PANEL ────────────────────────────────────── */
+.order-detail-panel {
+  background: var(--pearl);
+  border-top: 1px solid var(--sand);
+  padding: 24px 28px;
+}
+.detail-loading { font-size: 13px; color: var(--warm); }
+
+.order-items-list { margin-bottom: 20px; }
+.order-item-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sand);
+}
+.order-item-row:last-child { border-bottom: none; }
+.order-item-img {
+  width: 58px; height: 58px;
+  object-fit: cover;
+  background: var(--sand);
+  flex-shrink: 0;
+}
+.order-item-info { flex: 1; min-width: 0; }
+.order-item-name {
+  font-size: 14px; font-weight: 400; margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.order-item-qty  { font-size: 12px; color: var(--warm); }
+.order-item-price { font-size: 14px; font-weight: 500; flex-shrink: 0; }
+
+.order-totals-block { margin-bottom: 20px; }
+.order-totals-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--deep);
+  margin-bottom: 6px;
+}
+.order-grand-total {
+  font-size: 17px; font-weight: 500; color: var(--ink);
+  border-top: 1px solid var(--warm);
+  padding-top: 10px; margin-top: 4px;
+}
+
+.order-shipping-addr {
+  font-size: 13px;
+  color: var(--deep);
+  line-height: 1.65;
+  padding-top: 16px;
+  border-top: 1px solid var(--sand);
+}
+.order-shipping-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--bark);
+  margin-bottom: 6px;
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .orders-wrap { padding: 28px 16px 60px; }
+  .order-card-header, .order-summary-row { padding-left: 18px; padding-right: 18px; }
+  .order-expand-btn, .order-detail-panel { padding-left: 18px; padding-right: 18px; }
+  .orders-title { font-size: 34px; }
+}
