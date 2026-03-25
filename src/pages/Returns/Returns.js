@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import './Returns.css';
 
@@ -8,20 +8,16 @@ export default function Returns() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Load EmailJS SDK only when component mounts
-  useEffect(() => {
-    if (window.emailjs) return; // already loaded
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const loadEmailJS = () => new Promise((resolve, reject) => {
+    if (window.emailjs) { resolve(); return; }
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-    script.onload = () => {
-      if (window.emailjs && process.env.REACT_APP_EMAILJS_KEY) {
-        window.emailjs.init(process.env.REACT_APP_EMAILJS_KEY);
-      }
-    };
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load EmailJS'));
     document.head.appendChild(script);
-  }, []);
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  });
 
   const submit = async () => {
     if (!form.name || !form.email || !form.order_number || !form.reason) {
@@ -32,25 +28,42 @@ export default function Returns() {
       toast('Please enter a valid email', 'error');
       return;
     }
+
     setLoading(true);
     try {
-      await window.emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID',
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID',
-        {
-          from_name:    form.name,
-          from_email:   form.email,
-          order_number: form.order_number,
-          reason:       form.reason,
-          details:      form.details || 'No additional details provided.',
-          to_email:     'vashanth.tup@gmail.com',
-        }
-      );
+      await loadEmailJS();
+
+      const serviceId  = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+      const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+      const publicKey  = process.env.REACT_APP_EMAILJS_KEY;
+
+      if (!serviceId || !templateId || !publicKey) {
+        // EmailJS not configured yet — fallback to mailto
+        const subject = encodeURIComponent(`Return/Exchange - ${form.order_number}`);
+        const body = encodeURIComponent(
+          `Name: ${form.name}\nEmail: ${form.email}\nOrder: ${form.order_number}\nReason: ${form.reason}\nDetails: ${form.details}`
+        );
+        window.location.href = `mailto:vashanth.tup@gmail.com?subject=${subject}&body=${body}`;
+        setSubmitted(true);
+        setLoading(false);
+        return;
+      }
+
+      window.emailjs.init(publicKey);
+      await window.emailjs.send(serviceId, templateId, {
+        from_name:    form.name,
+        from_email:   form.email,
+        order_number: form.order_number,
+        reason:       form.reason,
+        details:      form.details || 'No additional details.',
+        to_email:     'vashanth.tup@gmail.com',
+      });
+
       setSubmitted(true);
       toast('Request submitted successfully!');
     } catch (err) {
       console.error(err);
-      toast('Failed to send. Please email us directly at vashanth.tup@gmail.com', 'error');
+      toast('Failed to send. Please email vashanth.tup@gmail.com directly.', 'error');
     }
     setLoading(false);
   };
