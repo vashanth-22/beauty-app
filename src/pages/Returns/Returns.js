@@ -8,11 +8,16 @@ export default function Returns() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Load EmailJS SDK once
+  // Load EmailJS SDK only when component mounts
   useEffect(() => {
+    if (window.emailjs) return; // already loaded
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-    script.onload = () => window.emailjs.init('YOUR_EMAILJS_PUBLIC_KEY');
+    script.onload = () => {
+      if (window.emailjs && process.env.REACT_APP_EMAILJS_KEY) {
+        window.emailjs.init(process.env.REACT_APP_EMAILJS_KEY);
+      }
+    };
     document.head.appendChild(script);
   }, []);
 
@@ -30,8 +35,8 @@ export default function Returns() {
     setLoading(true);
     try {
       await window.emailjs.send(
-        'YOUR_SERVICE_ID',
-        'YOUR_TEMPLATE_ID',
+        process.env.REACT_APP_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID',
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID',
         {
           from_name:    form.name,
           from_email:   form.email,

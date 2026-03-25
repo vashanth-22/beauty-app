@@ -67,6 +67,11 @@ export function AppProvider({ children }) {
   }, []);
 
   const addToCart = useCallback(async (product_id, quantity = 1) => {
+    if (!localStorage.getItem('token')) {
+      toast('Please login to add items to your bag', 'error');
+      navigate('auth');
+      return;
+    }
     try {
       const res = await cartApi.addItem(product_id, quantity);
       if (res.success) {
