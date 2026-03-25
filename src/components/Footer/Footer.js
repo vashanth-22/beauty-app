@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import './Footer.css';
 
 export default function Footer() {
   const { navigate, setFilters } = useApp();
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 300);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const goCategory = (slug) => {
     setFilters({ sort: 'newest', category: slug });
@@ -52,6 +61,12 @@ export default function Footer() {
           <span className="footer-link" onClick={() => navigate('contact')}>Newsletter</span>
         </div>
       </div>
+
+      {showTop && (
+        <button className="scroll-top-btn" onClick={scrollToTop} title="Back to top">
+          ↑
+        </button>
+      )}
 
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} Lumière Beauty. All rights reserved.</span>

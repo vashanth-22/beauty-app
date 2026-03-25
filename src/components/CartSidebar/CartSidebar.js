@@ -10,7 +10,7 @@ export default function CartSidebar() {
     cartOpen, setCartOpen,
     cartItems, cartMeta,
     updateCartQty, removeCartItem,
-    navigate,
+    navigate, user,
   } = useApp();
 
   // Free shipping threshold from config.php: FREE_SHIPPING_THRESHOLD = 1000
@@ -46,7 +46,24 @@ export default function CartSidebar() {
 
         {/* Body */}
         <div className="cart-body">
-          {cartItems.length === 0 ? (
+          {!user ? (
+            <div className="cart-empty">
+              <div className="cart-empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <p className="cart-empty-title">Please login to view your bag</p>
+              <p className="cart-empty-sub">Sign in to add items and checkout</p>
+              <button
+                className="btn btn-dark"
+                style={{ marginTop: 24 }}
+                onClick={() => { setCartOpen(false); navigate('auth'); }}
+              >
+                Sign In
+              </button>
+            </div>
+          ) : cartItems.length === 0 ? (
             <div className="cart-empty">
               <div className="cart-empty-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -65,8 +82,7 @@ export default function CartSidebar() {
                 Shop Now
               </button>
             </div>
-          ) : (
-            cartItems.map(item => {
+          ) : cartItems.map(item => {
               const product = item.product_id || {};
               const price = product.price || 0;
               const disc  = product.discount_percentage || 0;
@@ -103,11 +119,11 @@ export default function CartSidebar() {
                 </div>
               );
             })
-          )}
+          }
         </div>
 
         {/* Footer */}
-        {cartItems.length > 0 && (
+        {user && cartItems.length > 0 && (
           <div className="cart-footer">
             {/* Shipping progress */}
             {remaining > 0 ? (

@@ -84,7 +84,7 @@ export default function Home() {
 
       {/* ── HERO ──────────────────────────────────────────── */}
       {slides.length > 0 ? (
-        <section className="hero" style={{ backgroundImage: `url(${currentSlide.image_url})` }}>
+        <section className="hero" style={{ backgroundImage: `url(${currentSlide.image_url})`, cursor: 'pointer' }} onClick={() => navigate('products')}>
           <div className="hero-overlay" />
           <div className="hero-content">
             <p className="hero-eyebrow">New Collection</p>
@@ -163,9 +163,6 @@ export default function Home() {
               <div key={cat._id} className="category-card" onClick={() => goCategory(cat.slug)}>
                 <span className="category-icon">{cat.icon || '✨'}</span>
                 <p className="category-name">{cat.name}</p>
-                <p className="category-count">
-                  {cat.subcategories?.length || 0} collections
-                </p>
               </div>
             ))}
           </div>

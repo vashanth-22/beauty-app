@@ -122,19 +122,19 @@ export default function Orders() {
                   <div className="order-detail-panel">
                     <div className="order-items-list">
                       {order.items?.map((item, i) => (
-                        <div key={i} className="order-item-row">
-                          <img
-                            className="order-item-img"
-                            src={item.product_image || ''}
-                            alt={item.product_name}
-                            onError={e => { e.target.style.background = 'var(--sand)'; e.target.src = ''; }}
-                          />
-                          <div className="order-item-info">
-                            <p className="order-item-name">{item.product_name}</p>
-                            <p className="order-item-qty">Qty: {item.quantity}</p>
-                          </div>
-                          <p className="order-item-price">{INR(item.subtotal)}</p>
-                        </div>
+                      <div key={i} className="order-item-row">
+                      <img
+                      className="order-item-img"
+                      src={item.product_image || ''}
+                      alt={item.product_name}
+                      onError={e => { e.target.style.background = 'var(--sand)'; e.target.src = ''; }}
+                      />
+                      <div className="order-item-info">
+                      <p className="order-item-name">{item.product_name}</p>
+                      <p className="order-item-qty">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="order-item-price">{INR(item.unit_price * item.quantity || item.subtotal || 0)}</p>
+                      </div>
                       ))}
                     </div>
 
