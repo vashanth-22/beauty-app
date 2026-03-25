@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import './Returns.css';
 
@@ -8,6 +8,14 @@ export default function Returns() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Load EmailJS SDK once
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    script.onload = () => window.emailjs.init('YOUR_EMAILJS_PUBLIC_KEY');
+    document.head.appendChild(script);
+  }, []);
+
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const submit = async () => {
@@ -15,15 +23,29 @@ export default function Returns() {
       toast('Please fill all required fields', 'error');
       return;
     }
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      toast('Please enter a valid email', 'error');
+      return;
+    }
     setLoading(true);
     try {
-      // Send via mailto (no backend email service needed)
-      const subject = `Return/Exchange Request - ${form.order_number}`;
-      const body = `Name: ${form.name}%0AEmail: ${form.email}%0AOrder Number: ${form.order_number}%0AReason: ${form.reason}%0ADetails: ${form.details}`;
-      window.location.href = `mailto:vashanth.tup@gmail.com?subject=${subject}&body=${body}`;
+      await window.emailjs.send(
+        'YOUR_SERVICE_ID',
+        'YOUR_TEMPLATE_ID',
+        {
+          from_name:    form.name,
+          from_email:   form.email,
+          order_number: form.order_number,
+          reason:       form.reason,
+          details:      form.details || 'No additional details provided.',
+          to_email:     'vashanth.tup@gmail.com',
+        }
+      );
       setSubmitted(true);
-    } catch {
-      toast('Something went wrong', 'error');
+      toast('Request submitted successfully!');
+    } catch (err) {
+      console.error(err);
+      toast('Failed to send. Please email us directly at vashanth.tup@gmail.com', 'error');
     }
     setLoading(false);
   };
@@ -33,8 +55,8 @@ export default function Returns() {
       <div className="returns-success">
         <div style={{ fontSize: '3rem' }}>✅</div>
         <h2>Request Submitted!</h2>
-        <p>Your email client has opened. Please send the email to complete your request.</p>
-        <p>We'll get back to you within <strong>2 business days</strong>.</p>
+        <p>We've received your return/exchange request.</p>
+        <p>We'll get back to you at <strong>{form.email}</strong> within <strong>2 business days</strong>.</p>
         <button className="btn btn-dark" onClick={() => navigate('home')}>Back to Home</button>
       </div>
     </div>
@@ -49,7 +71,7 @@ export default function Returns() {
       </div>
       <div className="returns-wrap">
         <h1 className="returns-title">Returns & <em>Exchange</em></h1>
-        <p className="returns-sub">Not happy with your order? We offer easy 30-day returns. Fill the form below and we'll take care of it.</p>
+        <p className="returns-sub">Not happy with your order? We offer easy 30-day returns. Fill the form and we'll get back to you.</p>
 
         <div className="returns-grid">
           <div className="returns-form">
@@ -60,7 +82,7 @@ export default function Returns() {
               <input className="form-input" placeholder="Your name" value={form.name} onChange={e => set('name', e.target.value)} />
             </div>
             <div className="form-group">
-              <label className="form-label">Email *</label>
+              <label className="form-label">Your Email *</label>
               <input className="form-input" type="email" placeholder="your@email.com" value={form.email} onChange={e => set('email', e.target.value)} />
             </div>
             <div className="form-group">
@@ -87,6 +109,7 @@ export default function Returns() {
             <button className="btn btn-rose btn-full" onClick={submit} disabled={loading}>
               {loading ? 'Submitting…' : 'Submit Request'}
             </button>
+            <p className="returns-note">We'll reply to your email within 2 business days.</p>
           </div>
 
           <div className="returns-info">
@@ -116,7 +139,7 @@ export default function Returns() {
               <span className="policy-icon">💳</span>
               <div>
                 <p className="policy-title">Refund in 5–7 Days</p>
-                <p className="policy-desc">Refunds are processed to original payment method within 5–7 business days.</p>
+                <p className="policy-desc">Refunds processed to original payment method within 5–7 business days.</p>
               </div>
             </div>
           </div>

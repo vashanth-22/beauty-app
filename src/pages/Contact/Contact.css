@@ -4,8 +4,8 @@
 .contact-title em { color: var(--rose); font-style: italic; }
 .contact-sub { color: var(--muted); margin-bottom: 48px; font-size: 1rem; }
 .contact-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; }
-.contact-card { background: var(--pearl); border-radius: 12px; padding: 32px 20px; text-align: center; }
+.contact-card { background: var(--pearl); border-radius: 12px; padding: 32px 16px; text-align: center; overflow: hidden; }
 .contact-icon { font-size: 2rem; margin-bottom: 12px; }
 .contact-label { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-.contact-value { font-size: 0.95rem; color: var(--ink); text-decoration: none; }
+.contact-value { font-size: 0.85rem; color: var(--ink); text-decoration: none; word-break: break-all; display: block; }
 .contact-value:hover { color: var(--rose); }
