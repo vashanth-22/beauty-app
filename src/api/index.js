@@ -1,8 +1,4 @@
-const BASE_URL = process.env.REACT_APP_API_URL || 'https://beauty-backend-1-59ws.onrender.com/api';
-
-function getToken() {
-  return localStorage.getItem('token');
-}
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 async function request(endpoint, method = 'GET', body = null, params = {}) {
   const url = new URL(`${BASE_URL}/${endpoint}`);
@@ -15,11 +11,15 @@ async function request(endpoint, method = 'GET', body = null, params = {}) {
     });
   }
 
-  const headers = { 'Content-Type': 'application/json' };
-  const token = getToken();
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const options = { method, headers };
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(localStorage.getItem('token') && {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      }),
+    },
+  };
 
   if (body && method !== 'GET') {
     options.body = JSON.stringify(body);
