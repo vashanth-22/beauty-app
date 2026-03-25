@@ -25,7 +25,7 @@ export default function Home() {
   const [featured,  setFeatured]  = useState([]);
   const [trending,  setTrending]  = useState([]);
   const [newLaunch, setNewLaunch] = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const [loading,   setLoading]   = useState(true); // v2
 
   const loadData = () => {
     setLoading(true);
